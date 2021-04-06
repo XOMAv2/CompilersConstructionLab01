@@ -55,22 +55,22 @@
   (when (not (balanced? input))
     (throw (Exception. "Не удалось построить КА по введённой строке.")))
   (if-let [graph (parse-alt input)]
-    (do (when debug? (println "alt"))
+    (do (when debug? (println "alt" input))
         graph)
     (if-let [graph (parse-succ input)]
-      (do (when debug? (println "succ"))
+      (do (when debug? (println "succ" input))
           graph)
       (if-let [graph (parse-unary input)]
-        (do (when debug? (println "unary"))
+        (do (when debug? (println "unary" input))
             graph)
         (if-let [graph (parse-brackets input)]
-          (do (when debug? (println "brackets"))
+          (do (when debug? (println "brackets" input))
               graph)
           (if-let [graph (parse-sym input)]
-            (do (when debug? (println "sym"))
+            (do (when debug? (println "sym" input))
                 graph)
             (if-let [graph (parse-null input)]
-              (do (when debug? (println "null"))
+              (do (when debug? (println "null" input))
                   graph)
               (throw (Exception. "Не удалось построить КА по введённой строке.")))))))))
 
