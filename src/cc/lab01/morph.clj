@@ -1,17 +1,14 @@
 (ns cc.lab01.morph
-  (:require [cc.lab01.utils :refer [final?]]))
-
-(comment "В мапе переходов transitions детерминированного конечного автомата каждое множество
-          конечных состояний симвализируют лишь одно состояние в ДКА.")
+  (:require [clojure.set]))
 
 (declare null-closure)
 (declare alpha-null-closure)
 (declare nfa->dfa)
 
-(defn null-closure [state nfa]
+(defn null-closure [states nfa]
   (loop [transitions (:transitions nfa)
-         closure #{state}
-         checkpoints #{state}]
+         closure states
+         checkpoints states]
     (let [next-checkpoints (apply concat
                                   (map #(get-in transitions [% :null])
                                        checkpoints))
@@ -28,7 +25,7 @@
                                  (map #(get-in transitions [% c])
                                       states)))]
     (set (apply concat
-                (map #(null-closure % nfa)
+                (map #(null-closure #{%} nfa)
                      alpha-states)))))
 
 (defn nfa->dfa [nfa]
@@ -38,8 +35,10 @@
          dfa-transitions {}]
     (if (empty? queue)
       {:graph-type :DFA
-       :start (null-closure (:start nfa) nfa)
-       :finish (set (filter #(final? %) dfa-states))
+       :start #{(null-closure (:start nfa) nfa)}
+       :finish (->> dfa-states
+                    (filter #(seq (clojure.set/intersection (:finish nfa) %)))
+                    (set))
        :alphabet alphabet
        :states dfa-states
        :transitions dfa-transitions}
@@ -54,7 +53,7 @@
                 dfa-states (conj dfa-states state)
                 dfa-transitions (reduce #(assoc-in %
                                                   [state (first %2)]
-                                                  (second %2))
+                                                  #{(second %2)})
                                        dfa-transitions
                                        entries)]
             (recur queue alphabet dfa-states dfa-transitions)))))))

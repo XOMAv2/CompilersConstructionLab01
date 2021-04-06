@@ -1,9 +1,6 @@
 (ns cc.lab01.expressions
   (:require [clojure.set]))
 
-(comment "Т.к. ниже описанные функции реализуют конструктор Томпсона, здесь сделано допущение,
-          обязывающее граф иметь только одно начальное и одно конечное состояния.")
-
 (declare null)
 (declare sym)
 (declare alt)
@@ -16,11 +13,11 @@
 (defn null
   "Возвращает НКА, который принимает только пустую последовательность."
   []
-  (let [start (atom false)
-        finish (atom true)]
+  (let [start (gensym "s")
+        finish (gensym "s")]
     {:graph-type :NFA
-     :start start
-     :finish finish
+     :start #{start}
+     :finish #{finish}
      :alphabet #{}
      :states #{start finish}
      :transitions {start {:null #{finish}}}}))
@@ -28,16 +25,16 @@
 (defn sym
   "Возвращает НКА, который принимает только s, где s может быть строкой или одним символом."
   [s]
-  (let [start (atom false)
-        finish (atom true)]
+  (let [start (gensym "s")
+        finish (gensym "s")]
     {:graph-type :NFA
-     :start start
-     :finish finish
+     :start #{start}
+     :finish #{finish}
      :alphabet #{s}
      :states #{start finish}
      :transitions {start {s #{finish}}}}))
 
-#_(defn simplify [graph]
+(defn simplify [graph]
   (when (not= (count (:start graph)) 1)
     (throw (Exception.
             (str "Число начальных состояний в конструкторе Томпсона должно быть равно единице."))))
@@ -53,8 +50,9 @@
    (null) если подграфы не заданы."
   ([] (null))
   ([& graphs]
-   (let [start (atom false)
-         finish (atom true)
+   (let [graphs (map simplify graphs)
+         start (gensym "s")
+         finish (gensym "s")
          alphabet (apply clojure.set/union (map :alphabet graphs))
          states (apply clojure.set/union (map :states graphs))
          states (into #{start finish} states)
@@ -71,11 +69,9 @@
                                           (comp set conj) finish))
                              transitions
                              graphs)]
-     (doseq [graph graphs]
-       (reset! (:finish graph) false))
      {:graph-type :NFA
-      :start start
-      :finish finish
+      :start #{start}
+      :finish #{finish}
       :alphabet alphabet
       :states states
       :transitions transitions})))
@@ -85,15 +81,15 @@
    последовательно. Ведет себя как (null), если подграфы не заданы."
   ([] (null))
   ([& graphs]
-   (let [start (atom false)
-         finish (atom true)
+   (let [graphs (map simplify graphs)
+         start (gensym "s")
+         finish (gensym "s")
          alphabet (apply clojure.set/union (map :alphabet graphs))
          states (apply clojure.set/union (map :states graphs))
          states (into #{start finish} states)
          transitions (apply merge (map :transitions graphs))
          pairs (partition 2 1 graphs)
          transitions (reduce (fn [transitions pair]
-                               
                                (let [f (:finish (first pair))
                                      s (:start (second pair))]
                                  (update-in transitions
@@ -107,11 +103,9 @@
          transitions (update-in transitions
                                 [(:finish (last graphs)) :null]
                                 (comp set conj) finish)]
-     (doseq [graph graphs]
-       (reset! (:finish graph) false))
      {:graph-type :NFA
-      :start start
-      :finish finish
+      :start #{start}
+      :finish #{finish}
       :alphabet alphabet
       :states states
       :transitions transitions})))
@@ -119,8 +113,9 @@
 (defn star
   "Возвращает НКА, который принимает все, что принимается графом НКА ноль или более раз."
   [graph]
-  (let [start (atom false)
-        finish (atom true)
+  (let [graph (simplify graph)
+        start (gensym "s")
+        finish (gensym "s")
         alphabet (:alphabet graph)
         states (into #{start finish} (:states graph))
         transitions (:transitions graph)
@@ -136,10 +131,9 @@
         transitions (update-in transitions
                                [(:finish graph) :null]
                                (comp set conj) (:start graph))]
-    (reset! (:finish graph) false)
     {:graph-type :NFA
-     :start start
-     :finish finish
+     :start #{start}
+     :finish #{finish}
      :alphabet alphabet
      :states states
      :transitions transitions}))
