@@ -57,3 +57,17 @@
                                        dfa-transitions
                                        entries)]
             (recur queue alphabet dfa-states dfa-transitions)))))))
+
+(defn graph-reverse [graph]
+  (let [graph (assoc graph
+                     :start (:finish graph)
+                     :finish (:start graph))
+        triads (for [i (-> graph :transitions keys)
+                     j (-> graph :transitions (get i) keys)
+                     k (-> graph :transitions (get i) (get j))]
+                 [k j i])
+        r-transitions (reduce (fn [acc [k j i]]
+                                (update-in acc [k j] (comp set conj) i))
+                              {}
+                              triads)]
+    (assoc graph :transitions r-transitions)))
