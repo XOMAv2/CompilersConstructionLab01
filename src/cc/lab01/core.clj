@@ -13,7 +13,8 @@
              _   (spit "graph-dfa.dot" (graph->dot dfa))
              _   (spit "graph-dfa-reverse.dot" (graph->dot (morph/graph-reverse dfa)))
              minimal (morph/minimize nfa)
-             _       (spit "graph-minimal.dot" (graph->dot minimal))])
+             _       (spit "graph-minimal.dot" (graph->dot minimal))
+             _       (spit "graph-minimal-simple.dot" (graph->dot minimal :simple-names true))])
        (catch Exception e
          (println (ex-message e)))))
 
