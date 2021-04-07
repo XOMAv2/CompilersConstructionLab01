@@ -30,9 +30,9 @@
     {:graph-type :NFA
      :start #{start}
      :finish #{finish}
-     :alphabet #{s}
+     :alphabet #{(str s)}
      :states #{start finish}
-     :transitions {start {s #{finish}}}}))
+     :transitions {start {(str s) #{finish}}}}))
 
 (defn simplify [graph]
   (when (not= (count (:start graph)) 1)
