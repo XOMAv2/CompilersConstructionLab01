@@ -71,3 +71,12 @@
                               {}
                               triads)]
     (assoc graph :transitions r-transitions)))
+
+(defn minimize
+  "Минимизация КА с использованием алгоритма Бржозовского."
+  [graph]
+  (-> graph
+      (graph-reverse)
+      (nfa->dfa)
+      (graph-reverse)
+      (nfa->dfa)))
