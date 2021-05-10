@@ -18,8 +18,13 @@
   (throw (Exception. "Not implemented.")))
 
 ;; (defn nfa-accepts? [nfa stream]
-;;   {:pre [(= (count (:start nfa)) 1)]}
+;;   {:pre [(= (count (:start nfa)) 1)
+;;          (->> stream
+;;               (map #((:alphabet nfa) (str %)))
+;;               (reduce #(and % %2) true)
+;;               (boolean))]}
 ;;   (loop [queue (list [(first (:start nfa)) stream])]
+;;     (println queue)
 ;;     (if (empty? queue)
 ;;       false
 ;;       (let [[cur-state cur-stream] (peek queue)
@@ -33,7 +38,9 @@
 ;;                      (into (map #(vector % cur-stream)
 ;;                                 (get-in nfa [:transitions cur-state :null])))
 ;;                      (into (map #(vector % (rest cur-stream))
-;;                                 (get-in nfa [:transitions cur-state (first cur-stream)]))))))))))
+;;                                 (get-in nfa [:transitions
+;;                                              cur-state
+;;                                              (str (first cur-stream))]))))))))))
 
 ;; (->> (:transitions dfa)
 ;;      (vals)
