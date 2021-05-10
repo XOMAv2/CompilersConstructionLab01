@@ -26,3 +26,4 @@
 #_(-main "(a|b*)+" "bbbbbaac")
 #_(-main "a|b" "b")
 #_(-main "a(bc?d|e+)*" "c")
+#_(-main "a|b*abb" "abb")
